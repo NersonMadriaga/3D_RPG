@@ -4,18 +4,25 @@ using UnityEngine;
 
 public class CharacterMovements : MonoBehaviour
 {
+    private CharacterController controller;
     private InputManager inputManager;
     private Animator animator;
     private Transform cam;
 
     private int isWalkingHash;
     private int isRunningHash;
+    private int isCrouchingHash;
+    private int isBattleHash;
 
     private bool isRunning;
     private bool isWalking;
 
+    // Rotation variables
     private float turnSmoothTime = 0.1f;
     private float turnSmoothVelocity;
+
+    // Jump variables
+
     // Start is called before the first frame update
     void Start()
     {
@@ -34,36 +41,25 @@ public class CharacterMovements : MonoBehaviour
 
     private void InitialProperties()
     {
+        controller = GetComponent<CharacterController>();
+
         isWalkingHash = Animator.StringToHash("isWalking");
         isRunningHash = Animator.StringToHash("isRunning");
+        isCrouchingHash = Animator.StringToHash("isCrouching");
+        isBattleHash = Animator.StringToHash("isBattle");
+
+
         Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
         cam = Camera.main.transform;
     }
 
     private void HandleMovement()
     {
-        isWalking = animator.GetBool(isWalkingHash);
-        isRunning = animator.GetBool(isRunningHash);
-
-        if(inputManager.IsMovePressed() && !isWalking)
-        {
-            animator.SetBool(isWalkingHash, true);
-        }
-
-        if(!inputManager.IsMovePressed() && isWalking)
-        {
-            animator.SetBool(isWalkingHash, false);
-        }
-
-        if((inputManager.IsMovePressed() && inputManager.IsRunning()) && !isRunning)
-        {
-            animator.SetBool(isRunningHash, true);
-        }
-
-        if((!inputManager.IsMovePressed() || !inputManager.IsRunning()) && isRunning)
-        {
-            animator.SetBool(isRunningHash, false);
-        }
+        HandleNormalRunWalkMovement();
+        HandleCrouchMovement();
+        HandleBattleStance();
+        HandleJump();
     }
 
     private void HandleRotation()
@@ -74,6 +70,62 @@ public class CharacterMovements : MonoBehaviour
             float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
 
             transform.rotation = Quaternion.Euler(0f, angle, 0f);
+        }
+    }
+
+    private void HandleJump()
+    {
+        if (controller.isGrounded)
+        {
+            
+        }
+    }
+
+    private void HandleBattleStance()
+    {
+        if(inputManager.IsInBattle() && !inputManager.IsMovePressed())
+        {
+            animator.SetBool(isBattleHash, true);
+        }else
+        {
+            animator.SetBool(isBattleHash, false);
+        }
+    }
+
+    private void HandleCrouchMovement()
+    {
+        if (inputManager.IsCrouching())
+        {
+            animator.SetBool(isCrouchingHash, true);
+        } else
+        {
+            animator.SetBool(isCrouchingHash, false);
+        }
+    }
+
+    private void HandleNormalRunWalkMovement()
+    {
+        isWalking = animator.GetBool(isWalkingHash);
+        isRunning = animator.GetBool(isRunningHash);
+
+        if (inputManager.IsMovePressed() && !isWalking)
+        {
+            animator.SetBool(isWalkingHash, true);
+        }
+
+        if (!inputManager.IsMovePressed() && isWalking)
+        {
+            animator.SetBool(isWalkingHash, false);
+        }
+
+        if ((inputManager.IsMovePressed() && inputManager.IsRunning()) && !isRunning)
+        {
+            animator.SetBool(isRunningHash, true);
+        }
+
+        if ((!inputManager.IsMovePressed() || !inputManager.IsRunning()) && isRunning)
+        {
+            animator.SetBool(isRunningHash, false);
         }
     }
 }

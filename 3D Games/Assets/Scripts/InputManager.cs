@@ -12,10 +12,14 @@ public class InputManager : MonoBehaviour
 
     private bool movePressed;
     private bool isRunning;
+    private bool isCrouching;
+    private bool isJumping;
+    private bool isInBattle;
 
     private void Awake()
     {
         Instance = this;
+        isInBattle = false;
     }
 
     private void OnEnable()
@@ -39,8 +43,21 @@ public class InputManager : MonoBehaviour
     {
         HandleWASDInputs();
         HandleRunningInputs();
+        HandleCrouchInputs();
+        HandleJumpInputs();
+        HandleBattleStance();
     }
 
+    private void HandleRunningInputs() => playerInputs.PlayerMovements.Running.performed += btn => isRunning = btn.ReadValueAsButton();
+    private void HandleCrouchInputs() => playerInputs.PlayerMovements.Crouch.performed += btn => isCrouching = btn.ReadValueAsButton();
+    private void HandleJumpInputs() => playerInputs.PlayerMovements.Jump.performed += btn => isJumping = btn.ReadValueAsButton();
+    private void HandleBattleStance() => playerInputs.PlayerMovements.BattleStance.performed += _ => isInBattle = !isInBattle;
+    public Vector2 GetDirection() => direction;
+    public bool IsMovePressed() => movePressed;
+    public bool IsRunning() => isRunning;
+    public bool IsCrouching() => isCrouching;
+    public bool IsInBattle() => isInBattle;
+    public bool IsJumping() => isJumping;
     private void HandleWASDInputs()
     {
         playerInputs.PlayerMovements.Movements.performed += inputKeys =>
@@ -49,8 +66,4 @@ public class InputManager : MonoBehaviour
             movePressed = direction.x != 0f || direction.y != 0f;
         };
     }
-    private void HandleRunningInputs() => playerInputs.PlayerMovements.Running.performed += btn => isRunning = btn.ReadValueAsButton();
-    public Vector2 GetDirection() => direction;
-    public bool IsMovePressed() => movePressed;
-    public bool IsRunning() => isRunning;
 }
