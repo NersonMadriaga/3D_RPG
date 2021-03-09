@@ -1,11 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿
 using UnityEngine;
 
 public class InputManager : MonoBehaviour
 {
     public static InputManager Instance { get; private set; }
-
     private PlayerInputs playerInputs;
 
     private Vector2 direction;
@@ -14,12 +12,13 @@ public class InputManager : MonoBehaviour
     private bool isRunning;
     private bool isCrouching;
     private bool isJumping;
-    private bool isInBattle;
+    private bool isInBattle { get; set; }
 
     private void Awake()
     {
         Instance = this;
         isInBattle = false;
+        isJumping = false;
     }
 
     private void OnEnable()
@@ -58,6 +57,7 @@ public class InputManager : MonoBehaviour
     public bool IsCrouching() => isCrouching;
     public bool IsInBattle() => isInBattle;
     public bool IsJumping() => isJumping;
+    public void SetIsJumping(bool value) => isJumping = value;
     private void HandleWASDInputs()
     {
         playerInputs.PlayerMovements.Movements.performed += inputKeys =>
